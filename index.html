@@ -1,0 +1,292 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/css/bootstrap.min.css">
+<style>
+@import 'https://fonts.googleapis.com/css?family=Share+Tech+Mono';
+body {
+  background-color: #984b4b;
+  font-family: 'Share Tech Mono';
+  color: #000000;
+  user-select: none;
+  cursor: default; }
+
+h3 {
+  color: #FFFFFF; }
+
+hr {
+  border-color: black;
+  border-width: 2px; }
+
+#calculator-body {
+  background-color: #585858;
+  width: 325px;
+  border-radius: 10px;
+  padding: 7px;
+  position: relative;
+  left: 50%;
+  transform: translate(-50%, 0);
+  box-shadow: -1px -1px 5px; }
+
+#body-top {
+  width: 100%;
+  padding: 7px; }
+
+#body-bottom {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-gap: 7px;
+  padding: 7px; }
+
+#number-pad {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 5px;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #403c3c;
+  box-shadow: inset 1px 1px 10px; }
+
+#execute-pad {
+  display: grid;
+  grid-template-rows: 2fr 2fr 1fr;
+  grid-gap: 5px;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #403c3c;
+  box-shadow: inset 1px 1px 10px; }
+
+.std-button {
+  position: relative;
+  height: 40px;
+  cursor: default;
+  pointer-events: auto;
+  font-size: 22px;
+  border-radius: 2px;
+  background-color: lightgray;
+  color: black;
+  box-shadow: -1px 1px 5px; }
+  .std-button:hover {
+    color: black;
+    outline: .05em solid grey;
+    z-index: 3; }
+
+.exc-std-button {
+  background-color: green;
+  font-size: 22px;
+  cursor: default;
+  pointer-events: auto; }
+
+.exc-button {
+  background-color: #800020;
+  color: white;
+  cursor: default;
+  pointer-events: auto; }
+
+.screen {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  box-shadow: inset 1px 1px 5px;
+  background-color: #77abff; }
+
+.sub-screen {
+  width: 100%;
+  height: 50%;
+  background-color: transparent; }
+
+#equation-display {
+  font-size: 18px;
+  color: #A52A2A; }
+
+#display {
+  font-size: 24px;
+  color: #262626; }
+
+#footer {
+  width: 100%;
+  text-align: center;
+  margin-top: 10px; }
+
+a {
+  color: #FFFFFF; }
+
+</style>
+</head>
+
+<body>
+  <div id="wrapper">
+    <h3>Simple Calculator</h3>
+    <hr>
+  <div id="calculator-body" class="frame">
+    <div id="body-top" class="frame">
+      <div id="display1" class="screen">
+        <div id="equation-display" class="sub-screen"></div>
+        <div id="display" class="sub-screen">0</div>
+      </div>
+    </div>
+    <div id="body-bottom" class="frame">
+      <div id="number-pad" class="keys">
+        <button onClick="handleNumbers('7')" id="seven" class="std-button numbers" value="7">7</button>
+        <button onClick="handleNumbers('8')" id="eight" class="std-button numbers" value="8">8</button>
+        <button onClick="handleNumbers('9')" id="nine" class="std-button numbers" value="9">9</button>
+        <button onClick="handleNumbers('4')" id="four" class="std-button numbers" value="4">4</button>
+        <button onClick="handleNumbers('5')" id="five" class="std-button numbers" value="5">5</button>
+        <button onClick="handleNumbers('6')"id="six" class="std-button" value="6">6</button>
+        <button onClick="handleNumbers('1')" id="one" class="std-button" value="1">1</button>
+        <button onClick="handleNumbers('2')" id="two" class="std-button" value="2">2</button>
+        <button onClick="handleNumbers('3')" id="three" class="std-button" value="3">3</button>
+        <button onClick="handleNumbers('0')" id="zero" class="std-button" value="0">0</button>
+        <button onClick="handleDecimal()" id="decimal" class="std-button" value=".">.</button>
+        <button onClick="handleOperators('+')" id="add" class="std-button" value="+">+</button>
+        <button onClick="handleOperators('‑')" id="subtract" class="std-button" value="-">-</button>
+        <button onClick="handleOperators('x')" id="multiply" class="std-button" value="x">x</button>
+        <button onClick="handleOperators('/')" id="divide" class="std-button" value="/">/</button>
+      </div>
+      <div id="execute-pad" class="keys">
+        <button onClick="handleClear()" id="clear" class="exc-button" value="AC">AC</button>
+        <button onClick="handleDelete()" id="delete" class="exc-button" value="Del">Del</button>
+        <button onClick="handleEvaluate()" id="equals" class="exc-std-button" value="=">=</button>
+    </div>
+  </div>
+  </div>
+    <div id="footer">made by
+      <a href='https://codepen.io/willjay' target="_blank">willjw3</a></div>
+  </div>
+
+  <script>
+const isOperator = /[x/+‑]/;
+const endsWithOperator = /[x+‑/]$/;
+
+var currentVal = '0';
+var prevVal = '0';
+var tmpVal = '0'
+var formula = '0';
+var evaluated = false;
+
+function handleClear() {
+  currentVal = '0';
+  prevVal = '0';
+  formula = '';
+  document.getElementById("display").innerHTML = currentVal;
+  /*document.getElementById("equation-display").innerHTML = formula;*/
+}
+
+
+function handleNumbers(e) {
+  if (currentVal.length >= 20) {
+    if (currentVal === "Max Input Limit") {
+      tmpVal = tmpVal;
+    } else {
+      tmpVal = currentVal;
+      currentVal = "Max Input Limit";
+    }
+    setTimeout(() => {
+      currentVal = tmpVal;
+      document.getElementById("display").innerHTML = currentVal;
+    }, 1000);
+  }
+  else if (evaluated === true) {
+    currentVal = e;
+    formula = e;
+    evaluated = false;
+  }
+  else if (isOperator.test(currentVal) === true) {
+    var tmpOper = currentVal;
+    currentVal = e;
+    if (e == '0' && tmpOper === '/') {
+      formula = formula;
+    } else {formula = formula + e;}
+  }
+  else if (currentVal == '0') {
+    currentVal = e;
+    formula = formula.slice(0, -1) + e;
+  }
+  else {
+    currentVal = currentVal + e;
+    formula = formula + e;
+  }
+
+  document.getElementById("display").innerHTML = currentVal;
+
+}
+
+function handleDecimal() {
+  if (evaluated === true) {
+  currentVal = '0.';
+  formula = '0.';
+  evaluated = false;
+  }
+  else if (currentVal.includes('.')) {
+    currentVal = currentVal;
+    formula = formula;
+  }
+  else if (isOperator.test(currentVal) === true) {
+    currentVal = '0.';
+    formula = formula + '0.'
+  }
+  else if (currentVal == '0') {
+    currentVal = '0.';
+    formula = formula.slice(0, -1) + '0.'  }
+  else {
+    currentVal = currentVal + '.';
+    formula = formula + '.'
+  }
+  document.getElementById("display").innerHTML = currentVal;
+
+}
+
+function handleOperators(e) {
+  if (evaluated === true) {
+    currentVal = e;
+    formula = prevVal + e;
+    evaluated = false;
+  }
+  else if (isOperator.test(currentVal) === true) {
+    currentVal = e;
+    formula = formula.slice(0, -1) + e;
+  }
+  else {
+    currentVal = e;
+    formula = formula + e;
+  }
+  document.getElementById("display").innerHTML = currentVal;
+
+}
+
+function handleEvaluate() {
+  let expression = formula;
+  if (endsWithOperator.test(expression) === true) {
+    expression = expression.slice(0, -1);
+  }
+   expression = expression.replace(/x/g, "*").replace(/‑/g, "-");
+  let answer = Math.round(100000 * eval(expression)) / 100000;
+  currentVal = answer.toString();
+  formula = expression.replace(/\*/g, 'x').replace(/-/g, '‑') + '=' + answer;
+  prevVal = answer;
+  evaluated = true;
+  document.getElementById("display").innerHTML = currentVal;
+
+}
+
+function handleDelete() {
+  if (currentVal.length > 0) {
+    currentVal = currentVal.slice(0, -1);
+    if (evaluated !== true) {
+      formula = formula.slice(0, -1);
+    }
+    else { formula = formula; }
+  }
+  document.getElementById("display").innerHTML = currentVal;
+
+}
+
+
+  </script>
+
+</body>
+
+</html>
